@@ -5,28 +5,45 @@ class EmploymentSpider(scrapy.Spider):
     name = 'employment'
     allowed_domains = ["jobs.zhaopin.com","sou.zhaopin.com"]
     p = 1
-    url = 'http://sou.zhaopin.com/jobs/searchresult.ashx?jl=%E5%90%88%E8%82%A5&kw=%E5%89%8D%E7%AB%AF&sm=0&p='
+    url = 'http://sou.zhaopin.com/jobs/searchresult.ashx?jl=%E4%B8%8A%E6%B5%B7&kw=%E5%89%8D%E7%AB%AF&p='
     start_urls = [url + str(p)]
 
     def __init__(self):
         self.p = 1
-        self.url = 'http://sou.zhaopin.com/jobs/searchresult.ashx?jl=%E5%90%88%E8%82%A5&kw=%E5%89%8D%E7%AB%AF&sm=0&p='
+        self.url = 'http://sou.zhaopin.com/jobs/searchresult.ashx?jl=%E4%B8%8A%E6%B5%B7&kw=%E5%89%8D%E7%AB%AF&p='
+
+    def getValue(self,arr):
+        return len(arr) != 0 and arr[0] or ''
+
+    def getTitle(self, arr):
+        if len(arr) == 0:
+            return ''
+        str = ''
+        for i in arr:
+            i = i.replace('<b>', '').replace('</b>', '')
+            str += i
+        return str
 
     def parse(self, response):
-        contents = response.xpath('//table[@class="newlist"][position()>1]')
-
-        if len(contents) == 0:
+        nextPage = response.xpath('//li[@class="pagesDown-pos"]')
+        if len(nextPage) == 0:
             return
+        contents = response.xpath('//table[@class="newlist"][position()>1]')
         # xpath解析table需去掉tbody
         item = EmploymentItem()
         for content in contents:
-            item['title'] = content.xpath('.//tr/td[@class="zwmc"]/div/a/text()').extract()[0]
+            title = content.xpath('.//tr/td[@class="zwmc"]/div/a/node()').extract()
+            item['title'] = self.getTitle(title)
             feedback = content.xpath('.//tr/td[@class="fk_lv"]/span/text()').extract()
-            item['feedback'] = len(feedback) != 0 and feedback[0] or ''
-            item['company'] = content.xpath('.//tr/td[@class="gsmc"]/a/text()').extract()[0]
-            item['salary'] = content.xpath('.//tr/td[@class="zwyx"]/text()').extract()[0]
-            item['location'] = content.xpath('.//tr/td[@class="gzdd"]/text()').extract()[0]
-            item['date'] = content.xpath('.//tr/td[@class="gxsj"]/span/text()').extract()[0]
+            item['feedback'] = self.getValue(feedback)
+            company = content.xpath('.//tr/td[@class="gsmc"]/a/text()').extract()
+            item['company'] = self.getValue(company)
+            salary = content.xpath('.//tr/td[@class="zwyx"]/text()').extract()
+            item['salary'] = self.getValue(salary)
+            location = content.xpath('.//tr/td[@class="gzdd"]/text()').extract()
+            item['location'] = self.getValue(location)
+            date = content.xpath('.//tr/td[@class="gxsj"]/span/text()').extract()
+            item['date'] = self.getValue(date)
             yield item
         self.p = self.p + 1
         yield scrapy.Request(self.url + str(self.p), callback=self.parse)

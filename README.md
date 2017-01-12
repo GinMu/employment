@@ -1,2 +1,2 @@
 # employment
-a python3 crawler for getting employment information from zhaopin
+a python3 crawler for getting recruitment information from zhaopin

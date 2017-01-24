@@ -41,6 +41,7 @@ def clearData(self):
         self.cursor.execute(clear_sql)
         pass
     except Exception as e:
+        self.db.rollback()
         raise
 
 def insertData(self, item):

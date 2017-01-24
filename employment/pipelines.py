@@ -7,15 +7,19 @@
 
 import json
 import codecs
+from . import database
 
 class EmploymentPipeline(object):
     def __init__(self):
-        # self.file = open('data.json', 'wb')
-        self.file = codecs.open(
-            'zhilian.json', 'w', encoding='utf-8')
+        # self.file = codecs.open(
+        #     'zhilian.json', 'w', encoding='utf-8')
+        self.db = database.initDB()
     def process_item(self, item, spider):
-        line = json.dumps(dict(item), ensure_ascii=False) + "\n"
-        self.file.write(line)
+        # print('aaa:', item)
+        # line = json.dumps(dict(item), ensure_ascii=False) + "\n"
+        # self.file.write(line)
+        database.insert(self, item)
         return item
     def spider_closed(self, spider):
-        self.file.close()
+        # self.file.close()
+        self.db.close()

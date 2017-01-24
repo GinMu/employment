@@ -14,11 +14,12 @@ class EmploymentPipeline(object):
         # self.file = codecs.open(
         #     'zhilian.json', 'w', encoding='utf-8')
         self.db = database.initDB()
+        self.cursor = database.initCursor(self)
+        database.clearData(self)
     def process_item(self, item, spider):
-        # print('aaa:', item)
         # line = json.dumps(dict(item), ensure_ascii=False) + "\n"
         # self.file.write(line)
-        database.insert(self, item)
+        database.insertData(self, item)
         return item
     def spider_closed(self, spider):
         # self.file.close()

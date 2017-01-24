@@ -34,10 +34,22 @@ def initDB():
     db = pymysql.connect('localhost', 'smu', '20131498675MUsheng', 'musheng', charset='utf8mb4')
     return db
 
-def insert(self, item):
+def initCursor(self):
+    cursor = self.db.cursor()
+    return cursor
+
+def clearData(self):
+    clear_sql = "truncate employment"
+    try:
+        self.cursor.execute(clear_sql)
+        pass
+    except Exception as e:
+        raise
+
+def insertData(self, item):
     insert_sql = "INSERT INTO `employment` (`title`, `feedback`, `company`, `salary`, `location`, `date`) VALUES (%s, %s, %s, %s, %s, %s)"
     db = self.db
-    cursor = db.cursor()
+    cursor = self.cursor
     try:
         title = item['title']
         feedback = item['feedback']
@@ -47,6 +59,7 @@ def insert(self, item):
         date = item['date']
         cursor.execute(insert_sql, (title, feedback, company, salary, location, date))
         db.commit()
+        pass
     except Exception as e:
         db.rollback()
         raise

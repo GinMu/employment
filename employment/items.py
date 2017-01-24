@@ -14,6 +14,7 @@ class EmploymentItem(scrapy.Item):
     title = scrapy.Field()
     feedback = scrapy.Field()
     company = scrapy.Field()
-    salary = scrapy.Field()
+    min_salary = scrapy.Field()
+    max_salary = scrapy.Field()
     location = scrapy.Field()
     date = scrapy.Field()

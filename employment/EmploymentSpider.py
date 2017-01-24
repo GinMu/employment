@@ -32,18 +32,22 @@ class EmploymentSpider(scrapy.Spider):
         # xpath解析table需去掉tbody
         item = EmploymentItem()
         for content in contents:
-            title = content.xpath('.//tr/td[@class="zwmc"]/div/a/node()').extract()
-            item['title'] = self.getTitle(title)
-            feedback = content.xpath('.//tr/td[@class="fk_lv"]/span/text()').extract()
-            item['feedback'] = self.getValue(feedback)
-            company = content.xpath('.//tr/td[@class="gsmc"]/a/text()').extract()
-            item['company'] = self.getValue(company)
             salary = content.xpath('.//tr/td[@class="zwyx"]/text()').extract()
-            item['salary'] = self.getValue(salary)
-            location = content.xpath('.//tr/td[@class="gzdd"]/text()').extract()
-            item['location'] = self.getValue(location)
-            date = content.xpath('.//tr/td[@class="gxsj"]/span/text()').extract()
-            item['date'] = self.getValue(date)
-            yield item
+            salary = self.getValue(salary)
+            if (salary and salary.find('-') > -1):
+                salary = salary.split('-')
+                item['min_salary'] = salary[0]
+                item['max_salary'] = salary[1]
+                title = content.xpath('.//tr/td[@class="zwmc"]/div/a/node()').extract()
+                item['title'] = self.getTitle(title)
+                feedback = content.xpath('.//tr/td[@class="fk_lv"]/span/text()').extract()
+                item['feedback'] = self.getValue(feedback)
+                company = content.xpath('.//tr/td[@class="gsmc"]/a/text()').extract()
+                item['company'] = self.getValue(company)
+                location = content.xpath('.//tr/td[@class="gzdd"]/text()').extract()
+                item['location'] = self.getValue(location)
+                date = content.xpath('.//tr/td[@class="gxsj"]/span/text()').extract()
+                item['date'] = self.getValue(date)
+                yield item
         self.p = self.p + 1
         yield scrapy.Request(self.url + str(self.p), callback=self.parse)

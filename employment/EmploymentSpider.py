@@ -5,12 +5,13 @@ class EmploymentSpider(scrapy.Spider):
     name = 'employment'
     allowed_domains = ["jobs.zhaopin.com","sou.zhaopin.com"]
     p = 1
-    url = 'http://sou.zhaopin.com/jobs/searchresult.ashx?jl=%E4%B8%8A%E6%B5%B7&kw=%E5%89%8D%E7%AB%AF&p='
-    start_urls = [url + str(p)]
+    cities = ('上海', '北京', '杭州', '深圳', '广州', '合肥')
+    initCityIndex = 0
+    url = 'http://sou.zhaopin.com/jobs/searchresult.ashx'
+    start_urls = [url + '?kw=前端' + '&jl=' + cities[initCityIndex] + '&p=' + str(p)]
 
     def __init__(self):
         self.p = 1
-        self.url = 'http://sou.zhaopin.com/jobs/searchresult.ashx?jl=%E4%B8%8A%E6%B5%B7&kw=%E5%89%8D%E7%AB%AF&p='
 
     def getValue(self,arr):
         return len(arr) != 0 and arr[0] or ''
@@ -49,5 +50,6 @@ class EmploymentSpider(scrapy.Spider):
                 date = content.xpath('.//tr/td[@class="gxsj"]/span/text()').extract()
                 item['date'] = self.getValue(date)
                 yield item
+        url = response.url.replace('&p=' + str(self.p), '&p=' + str(self.p + 1))
         self.p = self.p + 1
-        yield scrapy.Request(self.url + str(self.p), callback=self.parse)
+        yield scrapy.Request(url, callback=self.parse)
